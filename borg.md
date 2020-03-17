@@ -23,5 +23,8 @@ Alloc - a reserved set of resources on a machine <br/>
 3. Naming<br/>
 基于Chubby的BNS服务，用于服务治理（发现、注册、健康检查等）。<br/>
 
-4. Monitoring
+4. Monitoring<br/>
 每个Task都包含一个built-in HTTP Server用来报告任务健康信息和监控指标。同时提供UI界面和日志收集服务等。
+
+## Borg architecture
+1. Borgmaster

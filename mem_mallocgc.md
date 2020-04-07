@@ -5,12 +5,18 @@ About object allocation:<br>
 1. small object is allocated from current per-P cache; particularly, a span with free object
 2. large object is allocated from heap
 3. if the span is full, the mcache's size-specific span will be refill from mcentral. See function refill() in Go/src/runtime/mcache.go.
+4. Allocation path:<br/>
+   (1) small object:
+        mcache —a certain span is full—> refill from mcentral list -all span is full-> try sweep a span <br/>
+       
+   (2) large object          
 
 About GC:<br/>
 1. GC will be started when (1) a span is full (2)we are allocating a large object 
 2. goroutine will not be preempted by GC while mallocing
 
 ## Source code comment
+###1. mallocgc
 function: mallocgc()<br/>
 source code path: Go/src/runtime/malloc.go<br/>
 
@@ -72,7 +78,7 @@ func mallocgc(size uintptr, typ *_type, needzero bool) unsafe.Pointer {
             } else if size&1 == 0 {
                 off = round(off, 2)
             }
-            // 当前Mchine的Tiny Object Block有足够空间容纳该对象
+            // 当前Machine的Tiny Object Block有足够空间容纳该对象
             if off+size <= maxTinySize && c.tiny != 0 {
                 // The object fits into existing tiny block.
                 x = unsafe.Pointer(c.tiny + off)
@@ -198,5 +204,200 @@ func mallocgc(size uintptr, typ *_type, needzero bool) unsafe.Pointer {
     	}
     
     	return x
+}
+```
+
+### Allocate from macache's span —— m.cache.nextFree()
+```go
+// nextFree returns the next free object from the cached span if one is available.
+// Otherwise it refills the cache with a span with an available object and
+// returns that object along with a flag indicating that this was a heavy
+// weight allocation. If it is a heavy weight allocation the caller must
+// determine whether a new GC cycle needs to be started or if the GC is active
+// whether this goroutine needs to assist the GC.
+//
+// Must run in a non-preemptible context since otherwise the owner of
+// c could change.
+func (c *mcache) nextFree(spc spanClass) (v gclinkptr, s *mspan, shouldhelpgc bool) {
+	s = c.alloc[spc]
+	shouldhelpgc = false
+	freeIndex := s.nextFreeIndex()
+	// when the span is full, refill this spanClass from mcentral
+	if freeIndex == s.nelems {
+		
+		... some code ...
+		
+		c.refill(spc)
+		// gc is triggered when a span is full
+		shouldhelpgc = true
+		s = c.alloc[spc]
+
+		freeIndex = s.nextFreeIndex()
+	}
+
+	... some code ...
+
+	v = gclinkptr(freeIndex*s.elemsize + s.base())
+	s.allocCount++
+	
+	... some code ...
+	
+	return
+}
+```
+
+###Refill span from mcentral — mcache.refill()
+```go
+// refill acquires a new span of span class spc for c. This span will
+// have at least one free object. The current span in c must be full.
+//
+// Must run in a non-preemptible context since otherwise the owner of
+// c could change.
+func (c *mcache) refill(spc spanClass) {
+	// Return the current cached span to the central lists.
+	s := c.alloc[spc]
+
+	if uintptr(s.allocCount) != s.nelems {
+		throw("refill of span with free space remaining")
+	}
+	if s != &emptymspan {
+		// Mark this span as no longer cached.
+		if s.sweepgen != mheap_.sweepgen+3 {
+			throw("bad sweepgen in refill")
+		}
+		atomic.Store(&s.sweepgen, mheap_.sweepgen)
+	}
+
+	// Get a new cached span from the central lists.
+	s = mheap_.central[spc].mcentral.cacheSpan()
+	if s == nil {
+		throw("out of memory")
+	}
+
+	if uintptr(s.allocCount) == s.nelems {
+		throw("span has no free space")
+	}
+
+	// Indicate that this span is cached and prevent asynchronous
+	// sweeping in the next sweep phase.
+	s.sweepgen = mheap_.sweepgen + 3
+
+	c.alloc[spc] = s
+}
+```
+
+###Allocate span from mcentral — mcentral.cacheSpan()
+```go
+// Allocate a span to use in an mcache.
+func (c *mcentral) cacheSpan() *mspan {
+	// Deduct credit for this span allocation and sweep if necessary.
+	spanBytes := uintptr(class_to_allocnpages[c.spanclass.sizeclass()]) * _PageSize
+	deductSweepCredit(spanBytes, 0)
+
+	lock(&c.lock)
+	traceDone := false
+	if trace.enabled {
+		traceGCSweepStart()
+	}
+	sg := mheap_.sweepgen
+retry:
+	var s *mspan
+	// iterate the nonempty span list
+	for s = c.nonempty.first; s != nil; s = s.next {
+		if s.sweepgen == sg-2 && atomic.Cas(&s.sweepgen, sg-2, sg-1) {
+			c.nonempty.remove(s)
+			c.empty.insertBack(s)
+			unlock(&c.lock)
+			s.sweep(true)
+			goto havespan
+		}
+		if s.sweepgen == sg-1 {
+			// the span is being swept by background sweeper, skip
+			continue
+		}
+		// we have a nonempty span that does not require sweeping, allocate from it
+		c.nonempty.remove(s)
+		c.empty.insertBack(s)
+		unlock(&c.lock)
+		goto havespan
+	}
+    
+	// nonempty span list is empty
+	// try to sweep a span from empty list
+	for s = c.empty.first; s != nil; s = s.next {
+		if s.sweepgen == sg-2 && atomic.Cas(&s.sweepgen, sg-2, sg-1) {
+			// we have an empty span that requires sweeping,
+			// sweep it and see if we can free some space in it
+			c.empty.remove(s)
+			// swept spans are at the end of the list
+			c.empty.insertBack(s)
+			unlock(&c.lock)
+			s.sweep(true)
+			freeIndex := s.nextFreeIndex()
+			if freeIndex != s.nelems {
+				s.freeindex = freeIndex
+				goto havespan
+			}
+			lock(&c.lock)
+			// the span is still empty after sweep
+			// it is already in the empty list, so just retry
+			goto retry
+		}
+		if s.sweepgen == sg-1 {
+			// the span is being swept by background sweeper, skip
+			continue
+		}
+		// already swept empty span,
+		// all subsequent ones must also be either swept or in process of sweeping
+		break
+	}
+	if trace.enabled {
+		traceGCSweepDone()
+		traceDone = true
+	}
+	unlock(&c.lock)
+
+	// Replenish central list if empty.
+	s = c.grow()
+	if s == nil {
+		return nil
+	}
+	lock(&c.lock)
+	c.empty.insertBack(s)
+	unlock(&c.lock)
+
+	// At this point s is a non-empty span, queued at the end of the empty list,
+	// c is unlocked.
+havespan:
+	if trace.enabled && !traceDone {
+		traceGCSweepDone()
+	}
+	n := int(s.nelems) - int(s.allocCount)
+	if n == 0 || s.freeindex == s.nelems || uintptr(s.allocCount) == s.nelems {
+		throw("span has no free objects")
+	}
+	// Assume all objects from this span will be allocated in the
+	// mcache. If it gets uncached, we'll adjust this.
+	atomic.Xadd64(&c.nmalloc, int64(n))
+	usedBytes := uintptr(s.allocCount) * s.elemsize
+	atomic.Xadd64(&memstats.heap_live, int64(spanBytes)-int64(usedBytes))
+	if trace.enabled {
+		// heap_live changed.
+		traceHeapAlloc()
+	}
+	if gcBlackenEnabled != 0 {
+		// heap_live changed.
+		gcController.revise()
+	}
+	freeByteBase := s.freeindex &^ (64 - 1)
+	whichByte := freeByteBase / 8
+	// Init alloc bits cache.
+	s.refillAllocCache(whichByte)
+
+	// Adjust the allocCache so that s.freeindex corresponds to the low bit in
+	// s.allocCache.
+	s.allocCache >>= s.freeindex % 64
+
+	return s
 }
 ```

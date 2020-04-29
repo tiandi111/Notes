@@ -27,4 +27,10 @@ Alloc - a reserved set of resources on a machine <br/>
 每个Task都包含一个built-in HTTP Server用来报告任务健康信息和监控指标。同时提供UI界面和日志收集服务等。
 
 ## Borg architecture
-1. Borgmaster
+
+
+1. Borgmaster<br/>
+①Components: 
+主BorgMaster进程+Scheduler进程<br/>
+
+②

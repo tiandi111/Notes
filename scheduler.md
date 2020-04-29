@@ -46,6 +46,49 @@
    	scheduledPodsHasSynced func() bool
    }
    ```
+   
+PriorityQueue(SchedulingQueue)
+---
+```go
+type PriorityQueue struct {
+	stop  chan struct{}
+	clock util.Clock
+
+	// pod initial backoff duration.
+	podInitialBackoffDuration time.Duration
+	// pod maximum backoff duration.
+	podMaxBackoffDuration time.Duration
+
+	lock sync.RWMutex
+	cond sync.Cond
+
+	// activeQ is heap structure that scheduler actively looks at to find pods to
+	// schedule. Head of heap is the highest priority pod.
+	activeQ *heap.Heap
+	// podBackoffQ is a heap ordered by backoff expiry. Pods which have completed backoff
+	// are popped from this heap before the scheduler looks at activeQ
+	podBackoffQ *heap.Heap
+	// unschedulableQ holds pods that have been tried and determined unschedulable.
+	unschedulableQ *UnschedulablePodsMap
+	// nominatedPods is a structures that stores pods which are nominated to run
+	// on nodes.
+	nominatedPods *nominatedPodMap
+	// schedulingCycle represents sequence number of scheduling cycle and is incremented
+	// when a pod is popped.
+	schedulingCycle int64
+	// moveRequestCycle caches the sequence number of scheduling cycle when we
+	// received a move request. Unscheduable pods in and before this scheduling
+	// cycle will be put back to activeQueue if we were trying to schedule them
+	// when we received move request.
+	moveRequestCycle int64
+
+	// closed indicates that the queue is closed.
+	// It is mainly used to let Pop() exit its control loop while waiting for an item.
+	closed bool
+}
+```
+   
+   
 ## New
 
 ##genericScheduler(默认)

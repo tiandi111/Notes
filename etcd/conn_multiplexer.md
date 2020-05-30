@@ -73,4 +73,55 @@ When a request comes, it "sniffs" the connection by look at the first several by
 to decide which protocol it is using and redirect it to the right server. The github
 address is here: https://github.com/soheilhy/cmux.
 
- Some simple source code review is coming...
+This is the simplified Serve() method of connection-level multiplexer. It simply receives
+incoming connection from a root listener and dispatch it in serve().
+```go
+func (m *cMux) Serve() error {
+	for {
+		c, err := m.root.Accept()
+		if err != nil {
+			if !m.handleErr(err) {
+				return err
+			}
+			continue
+		}
+
+		wg.Add(1)
+		go m.serve(c, m.donec, &wg)
+	}
+}
+```
+Again, simplified serve() method on cMux, it chooses a matched listener and dispatches the
+connection by a channel.
+```go
+func (m *cMux) serve(c net.Conn, donec <-chan struct{}, wg *sync.WaitGroup) {
+	muc := newMuxConn(c)
+	for _, sl := range m.sls {
+		for _, s := range sl.ss {
+			matched := s(muc.Conn, muc.startSniffing())
+			if matched {
+				muc.doneSniffing()
+				if m.readTimeout > noTimeout {
+					_ = c.SetReadDeadline(time.Time{})
+				}
+				select {
+				case sl.l.connc <- muc:
+				case <-donec:
+					_ = c.Close()
+				}
+				return
+			}
+		}
+	}
+}
+```
+This is the actual listener for each server, it receives connections from the channel.
+```go
+func (l muxListener) Accept() (net.Conn, error) {
+	c, ok := <-l.connc
+	if !ok {
+		return nil, ErrListenerClosed
+	}
+	return c, nil
+}
+```

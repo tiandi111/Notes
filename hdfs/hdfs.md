@@ -27,5 +27,21 @@ Notes on 《HDFS Architecture Guide》
 - DataNode
     - serve clients' write and read requests
     - perform block creation, deletion and replication (instructed by NameNode)
-
+    
+### Replication
+- File structure
+    - files are stored as a sequence of blocks
+    - blocks are distributed across the whole cluster
+    - NameNode manages the mappings from blocks to DataNodes
+    - block size and replication factor are configurable for each file
+- Replication
+    - Replication placement
+        - goals and some facts
+            - to optimize data reliability, availability and network bandwidth
+            - network bandwidth within a rack is larger than that across different racks 
+            - 
+        - rack-aware placement policy
+        - 
+    - Replica selection
+    - Safe mode
 ### How HDFS achieves its design goals

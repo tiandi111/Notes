@@ -4,6 +4,7 @@ Database System Concepts, Ch13 Data Storage Structures
 ### File Organization
 - Fixed-length Records
     - problem1: internal fragmentation
+        - the space records take cannot always perfectly fit in a page
     - problem2: deletion of records
         - we do not want to move records after deletion because disk access is expensive
         - we use a 'freelist' to indicate free space holes inside the file, new records will be inserted 
@@ -42,5 +43,22 @@ Database System Concepts, Ch13 Data Storage Structures
 - Hashing File Organization
 
 ### Data-Dictionary Storage
+The Data-Dictionary (also called system catalog) stores metadata; that is, data about data,
+such as:
+- 
 
 ### Buffer Manager (Virtual memory manager for Database)
+Database system seeks to minimize the number of blocks transfers between disk and
+memory. We can reduce the number of disk accesses by keeping as many blocks as
+possible in main memory.
+- How Buffer Manager works?
+    Program call on the buffer manager when they need a disk block.
+    - If the block is in buffer, the buffer manager return its address
+    - If the block is not in buffer
+        - Allocate space in the buffer for the block
+            - Replacing some blocks to make space for the new block if required
+            - Replaced block written back to disk only if it was modified since 
+            the most recent time that is was written to/fetched from the disk
+        - Read the block from disk into the buffer, and return the address of it 
+        in the buffer
+- Buffer Replacement policies

@@ -1,6 +1,31 @@
 File system
 ---
 
+### Overview
+```
++-----------------------+
+|      Applications     |
++-----------------------+
+| Programming libraries |
++-----------------------+
+|      System calls     |
++-----------------------+
+|          VFS          |
++-----------------------+
+|          FSs          |
++-----------------------+
+|      Block layer      |
++-----------------------+
+|     Device drivers    |
++-----------------------+
+|        Hardware       |
++-----------------------+
+```
+
+### Disk Space Allocation
+
+### Free Space Management
+
 ### Recovery
 Failure considered in this section is *system failure*
 
@@ -34,3 +59,15 @@ Logs are written until the end of the file and then written from the beginning.
 
 A side benefit is that metadata updates proceed faster because of the performance advantage of 
 sequential I/O over random I/O.
+
+#### 3. Other Solutions
+
+An alternative is to always write data or metadata in a new block, when the writes are finished, the
+pointer to the old blocks are redirected to the new blocks. In this way, the old blocks also serve as
+snapshots.
+
+#### 4. Backup and Restore
+
+- Backup:
+    - full backup
+    - incremental backup

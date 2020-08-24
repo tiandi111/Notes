@@ -22,7 +22,55 @@ File system
 +-----------------------+
 ```
 
-### Disk Space Allocation
+### VFS
+
+Linux VFS object types:
+1. inode object         ->      an individual file
+2. file object          ->      an open file
+3. superblock object    ->      an entire file system
+4. dentry object        ->      an individual file directory
+
+### File Implementation
+
+The most important issue in implementing file is keeping track of which disk block goes with which
+file.
+
+#### 1. Continuous Allocation
+- Pros
+    - simple
+    - good read performance
+- Cons
+    - external fragmentation
+    - hard to approximate space in advance
+    
+#### 2. Linked List
+
+#### 3. Linked List in Table
+
+#### 4. I-Node
+Index Node is a block that stores file-to-block addr mappings.
+```
+    +-----------------+
+    | file attributes |
+    +-----------------+
+    | addr of block 1 |
+    +-----------------+
+    | addr of block 2 |
+    +-----------------+
+    |      ...        |
+    +-----------------+
+    |addr of block ptr| -> +--------------------------------------------+
+    +-----------------+    | disk block containing addtional disk addrs |
+                           +--------------------------------------------+
+```
+
+### Directory Implementation
+
+The goal of directory system is to map the file name onto the information needed to locate
+the data, no matter what kind of information it is (it could be block number, disk addr or
+inode number).
+
+
 
 ### Free Space Management
 

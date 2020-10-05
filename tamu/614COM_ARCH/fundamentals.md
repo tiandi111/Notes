@@ -72,5 +72,30 @@ The implementation of a computer:
 - Organization(microarchitecture)
 - Hardware
 
+## Trends in Power and Energy
 
+### 1. Power and Energy: A Systems Perspective
+- Maximum power
+    - failed to meet max power requirement might lead to Malfunction
+- Thermal design power (TDP)
+    - What is it?
+        - it is the amount of heat a component can generate, and the cooler must remove
+        - it is not the peak power
+        - it is noe the actual average power
+    - it often determines the cooling requirement
+- Energy and energy efficiency
+    - it is tied to a specific task
+    - it is tied to execution time
+    - thus, it is a better metric than power for comparing processor efficiency
+    
+### 2. Energy and Power within a Microprocessor
+- Dynamic energy (caused by switching transistors)
+    - Energy_dynamic ∝ Capacitive load * Voltage^2
+    - Power_dynamic ∝ Capacitive load * Voltage^2 * Frequency switched
+- Static energy
+    - Energy_static ∝ Current_static * Voltage
+- Techniques to improve energy efficiency
+    - Clock gating
+    - Power gating
+    - 
     

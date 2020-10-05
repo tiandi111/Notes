@@ -12,8 +12,7 @@ The type of internal storage in the processor is the most basic differentiation.
     Can access memory directly from instructions.
         
 - Register-Register (Load-Store)
-
-    Instructions are divided to two kinds: 
+    - Instructions are divided to two kinds: 
         - Memory Access: Load and Store between memory and register<br/>
         - ALU operations: which only occur between registers<br/>
         

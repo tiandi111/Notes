@@ -5,7 +5,13 @@ Chapter 4 | Teaching Deep Learners to Generalize
 
 ##4.1
 
-##4.2
+##4.2 The Bias-Variance Trade-Off
+- Error
+    - Bias: caused by simplifying assumptions in the model
+        - not enough parameters
+    - Variance: caused by the inability to learn all the parameters of the model in a statistically robust way
+        - too many parameters, not enough data
+    - Noise: caused by inherent error in the data
 
 ##4.3 Generalization Issues in Model Tuning and Evaluation
 
@@ -34,3 +40,7 @@ Chapter 4 | Teaching Deep Learners to Generalize
 - Bad algorithm
 - Underfitting(high bias)
 - Overfitting(high invariance) -> collect more data
+
+### 4.4 Penalty-Based Regularization
+- L2-Regularization
+- L1-Regularization

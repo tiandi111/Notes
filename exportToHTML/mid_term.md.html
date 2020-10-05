@@ -1,0 +1,165 @@
+<html>
+<head>
+<title>mid_term.md</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #a9b7c6;}
+.s1 { color: #a9b7c6;}
+.s2 { color: #cc7832;}
+.s3 { color: #808080;}
+</style>
+</head>
+<body bgcolor="#2b2b2b">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+mid_term.md</font>
+</center></td></tr></table>
+<pre><span class="s0">Review</span>
+<span class="s2">---</span>
+
+<span class="s2">1. </span><span class="s0">Perceptron</span><span class="s1">(</span><span class="s0">Linear separator</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">Hypothesis set</span><span class="s1">: </span><span class="s0">sign</span><span class="s1">(</span><span class="s0">W^Tx</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">Learning algorithm</span><span class="s1">: </span><span class="s0">PLA</span>
+        <span class="s2">- </span><span class="s0">idea</span><span class="s1">: </span><span class="s0">start with some weights and try to improve it</span>
+        <span class="s2">- </span><span class="s0">algorithm</span><span class="s1">:</span>
+        <span class="s3">```</span>
+        <span class="s3">for i in max_iter:</span>
+            <span class="s3">for (x, y) in in_samples:</span>
+                <span class="s3">if sign(W^Tx) != y:</span>
+                    <span class="s3">all_mispred_samples.append((x, y))</span>
+            <span class="s3">for (x, y') in all_mispred_samples：</span>
+                <span class="s3">W_(i-1) += y * x</span>
+        <span class="s3">```</span>
+      <span class="s2">- </span><span class="s0">pocket algorithm</span><span class="s1">: </span><span class="s0">use the model with the smallest in-sample error</span>
+    <span class="s2">- </span><span class="s0">Theoretical basis</span><span class="s1">: </span><span class="s0">If the data can be fit by a linear separator, then after some finite number of steps, PLA will find one.</span>
+    
+<span class="s2">2. </span><span class="s0">Linear Regression</span>
+    <span class="s2">- </span><span class="s0">y = W^Tx, E = </span><span class="s1">(</span><span class="s0">y-W^Tx</span><span class="s1">)</span><span class="s0">^2</span>
+    <span class="s2">- </span><span class="s0">Has analytic solution</span><span class="s1">:</span>
+        <span class="s2">- </span><span class="s0">Normal equation</span><span class="s1">: </span><span class="s0">take the derivative of E, we get X^TXw = X^Ty</span>
+        <span class="s2">- </span><span class="s0">The linear regression algorithm gets the smallest possible Ein in one step</span>
+        
+<span class="s2">3. </span><span class="s0">Logistic Regression</span><span class="s1">(</span><span class="s0">for classification task</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">predict the probability with</span><span class="s1">: </span><span class="s0">sigmoid</span><span class="s1">(</span><span class="s0">W^Tx</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">sigmoid</span><span class="s1">: </span><span class="s0">1 / </span><span class="s1">(</span><span class="s0">1 + e^</span><span class="s1">(</span><span class="s0">-s</span><span class="s1">))</span>
+    <span class="s2">- </span><span class="s0">Cross entropy loss</span><span class="s1">(</span><span class="s0">for binary case</span><span class="s1">): </span><span class="s0">E = ln</span><span class="s1">(</span><span class="s0">1 + e</span><span class="s1">(</span><span class="s0">-y * W^T * x</span><span class="s1">))</span>
+        <span class="s2">- </span><span class="s0">y takes {+1, -1}, y is the real label</span>
+    <span class="s2">- </span><span class="s0">Cross entropy is an alternative representation of maximum likelihood estimation, the loss function used in logReg</span>
+    <span class="s0">is actually derived from MLE</span>
+    
+<span class="s2">4. </span><span class="s0">Softmax Regression</span><span class="s1">(</span><span class="s0">for multi-class classification</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">formula</span><span class="s1">:</span>
+    <span class="s2">- </span><span class="s0">relationship with logistic regression</span><span class="s1">:</span>
+        <span class="s2">- </span><span class="s0">equivalence between softmax and sigmoid</span>
+        <span class="s2">- </span><span class="s0">equivalence between binary cross entropy and multi-class cross entropy</span><span class="s1">:</span>
+    <span class="s2">- </span><span class="s0">Cross entropy loss</span><span class="s1">(</span><span class="s0">for multi-class case</span><span class="s1">)</span>
+
+<span class="s2">5. </span><span class="s0">Gradient Descent</span>
+    <span class="s2">- </span><span class="s0">Batch-GD</span><span class="s1">: </span><span class="s0">update for the entire batch</span>
+    <span class="s2">- </span><span class="s0">SGD</span><span class="s1">: </span><span class="s0">update for each sample</span>
+    <span class="s2">- </span><span class="s0">Mini-Batch GD</span><span class="s1">: </span><span class="s0">update for each mini-batch </span><span class="s1">(</span><span class="s0">accumulate loss -</span><span class="s1">&gt; </span><span class="s0">compute gradient -</span><span class="s1">&gt; </span><span class="s0">update</span><span class="s1">)</span>
+    
+<span class="s2">6. </span><span class="s0">Neural Network</span>
+    <span class="s2">- </span><span class="s0">Backpropagation Algorithm</span>
+    <span class="s3">```</span>
+    <span class="s3">Compute_X(sample):</span>
+        <span class="s3">s, x = new_array(), new_array()</span>
+        <span class="s3">s[0] = sample</span>
+        <span class="s3">for l in (1, L):</span>
+            <span class="s3">x[l] = s[l-1] * W[l]</span>
+            <span class="s3">s[l] = actv(x[l])</span>
+        <span class="s3">return x</span>
+    <span class="s3">```</span>
+    <span class="s3">```</span>
+   <span class="s3">Compute_sensitivity(x):</span>
+        <span class="s3">E' = Loss'(S[L])</span>
+        <span class="s3">sen[L] = E' * actv'(s[L])</span>
+        <span class="s3">for l in (L-1, 1):</span>
+            <span class="s3">sen[l] = sen[l+1] * W[l+1]^T * actv'(x[l])</span>
+        <span class="s3">return sen</span>
+    <span class="s3">```</span>
+    <span class="s3">``` </span>
+    <span class="s3">Backprop():</span>
+        <span class="s3">for s in all_samples:</span>
+            <span class="s3">x = Compute_X(s)             // compute output of each layer</span>
+            <span class="s3">sen = Compute_sensitivity(s) // compute sensitivity of each layer</span>
+            <span class="s3">E += Loss(s)</span>
+            <span class="s3">for l in L:                 // for each layer</span>
+                <span class="s3">G[l] = x[l-1] * sen[l-1]   // compute gradient for layer l</span>
+                <span class="s3">G[l] += G[l] + 1/N * G[l]  // accumulate gradient</span>
+        <span class="s3">for l in L:</span>
+            <span class="s3">W[l] -= lr * G[l]             // update weight</span>
+    <span class="s3">```</span>
+    <span class="s2">- </span><span class="s0">Generalization</span>
+        <span class="s2">- </span><span class="s0">L1 regularization</span>
+        <span class="s2">- </span><span class="s0">L2 regularization </span><span class="s1">(</span><span class="s0">weight decay</span><span class="s1">)</span>
+        <span class="s2">- </span><span class="s0">Early stopping</span>
+        <span class="s2">- </span><span class="s0">Dropout</span>
+        <span class="s2">- </span><span class="s0">Data augmentation</span>
+    <span class="s2">- </span><span class="s0">Better GD</span>
+        <span class="s2">- </span><span class="s0">variable learning rate</span>
+        <span class="s2">- </span><span class="s0">Steepest Descent </span><span class="s1">(</span><span class="s0">Line Search</span><span class="s1">): </span><span class="s0">binary search to decide the lr that minimize E in one step</span>
+        <span class="s2">- </span><span class="s0">... and others</span>
+    
+<span class="s2">7. </span><span class="s0">CNN</span>
+    <span class="s2">- </span><span class="s0">Domain knowledge</span>
+        <span class="s2">- </span><span class="s0">translation invariance</span>
+        <span class="s2">- </span><span class="s0">locality</span>
+    <span class="s2">- </span><span class="s0">Basics </span><span class="s1">(</span><span class="s0">hk is the size of the kernel</span><span class="s1">) </span>
+        <span class="s2">- </span><span class="s0">Conv</span>
+            <span class="s2">- </span><span class="s0">H</span><span class="s1">(</span><span class="s0">i+1</span><span class="s1">) </span><span class="s0">= H</span><span class="s1">(</span><span class="s0">i</span><span class="s1">) </span><span class="s0">+ hk -1 </span>
+            <span class="s2">- </span><span class="s0">Backprop</span><span class="s1">(</span><span class="s0">DeConv</span><span class="s1">): </span><span class="s0">1. full-padding 2. conv with inverted filters</span>
+        <span class="s2">- </span><span class="s0">Padding </span>
+            <span class="s2">- </span><span class="s1">&quot;</span><span class="s0">same</span><span class="s1">&quot; </span><span class="s0">padding </span><span class="s1">(</span><span class="s0">or half-padding</span><span class="s1">): </span><span class="s0">Ph = </span><span class="s1">(</span><span class="s0">hk - 1</span><span class="s1">)</span><span class="s0">/2 on each side</span>
+            <span class="s2">- </span><span class="s1">&quot;</span><span class="s0">valid</span><span class="s1">&quot; </span><span class="s0">padding</span><span class="s1">: </span><span class="s0">not use any padding...</span>
+                <span class="s2">- </span><span class="s0">without padding, pixels on boarders are under-represented</span>
+            <span class="s2">- </span><span class="s1">&quot;</span><span class="s0">full</span><span class="s1">&quot; </span><span class="s0">padding</span><span class="s1">: </span><span class="s0">Ph = hk - 1 on each side, increase by hw-1, useful when doing reverse convolution</span>
+        <span class="s2">- </span><span class="s0">Strides </span><span class="s1">(</span><span class="s0">Sk is the stride</span><span class="s1">)</span>
+            <span class="s2">- </span><span class="s0">H</span><span class="s1">(</span><span class="s0">i+1</span><span class="s1">) </span><span class="s0">= </span><span class="s1">(</span><span class="s0">H</span><span class="s1">(</span><span class="s0">i</span><span class="s1">) </span><span class="s0">- hk</span><span class="s1">) </span><span class="s0">/ Sk + 1</span>
+        <span class="s2">- </span><span class="s0">Bias</span>
+            <span class="s2">- </span><span class="s0">one for each channel, added on each pixel</span>
+        <span class="s2">- </span><span class="s0">Pooling</span>
+            <span class="s2">- </span><span class="s0">diff with conv</span><span class="s1">: </span><span class="s0">apply on each feature map, does not change the number of feature maps</span>
+            <span class="s2">- </span><span class="s0">with stride of 1, H</span><span class="s1">(</span><span class="s0">i+1</span><span class="s1">) </span><span class="s0">= H</span><span class="s1">(</span><span class="s0">i</span><span class="s1">) </span><span class="s0">+ hk -1 </span>
+            <span class="s2">- </span><span class="s0">provide nonlinearity and translation invariance</span>
+            <span class="s2">- </span><span class="s0">global average pooling before FC to reduce computation load</span>
+        <span class="s2">- </span><span class="s0">Skip connection</span>
+            <span class="s2">- </span><span class="s0">provide unimpeded gradient flow</span>
+            <span class="s2">- </span><span class="s0">provide multiple level of abstractions and let the network itself to decide which level to use; the network</span>
+            <span class="s0">becomes a </span><span class="s1">&quot;</span><span class="s0">bag</span><span class="s1">&quot; </span><span class="s0">of different models, similar to ensemble</span>
+            <span class="s2">- </span><span class="s0">the above point can be seen from an optimization perspective, in which says that deeper networks have more</span>
+            <span class="s0">complicated loss surface and require much more time and more sophisticated optimization techniques to converge.</span>
+            <span class="s0">The skip connections ease this difficulty by allowing the network to converge at </span><span class="s1">&quot;</span><span class="s0">less-representative</span><span class="s1">&quot; </span><span class="s0">minima</span>
+
+<span class="s2">7. </span><span class="s0">CNN - training</span>
+    <span class="s2">- </span><span class="s0">preprocessing</span>
+        <span class="s2">- </span><span class="s0">zero-centered</span>
+        <span class="s2">- </span><span class="s0">normalization</span>
+    <span class="s2">- </span><span class="s0">weight initialization</span>
+        <span class="s2">- </span><span class="s0">small random number </span><span class="s1">(</span><span class="s0">gaussian with zero mean and 1e-2 standard deviation</span><span class="s1">)</span>
+            <span class="s2">- </span><span class="s0">for deeper networks, activation outputs become zero</span>
+            <span class="s2">- </span><span class="s0">weight updating becomes super slow, sometimes completely stop, G</span><span class="s1">[</span><span class="s0">l-1</span><span class="s1">] </span><span class="s0">= X^T * G</span><span class="s1">[</span><span class="s0">l-1</span><span class="s1">]</span>
+        <span class="s2">- </span><span class="s0">Xavier initialization</span>
+            <span class="s2">- </span><span class="s0">small random / sqrt</span><span class="s1">(</span><span class="s0">fan_in</span><span class="s1">)</span>
+    <span class="s2">- </span><span class="s0">batch normalization</span>
+        <span class="s2">- </span><span class="s0">covariate shift</span><span class="s1">: </span><span class="s0">the change of the distribution of input data</span>
+        <span class="s2">- </span><span class="s0">almost eliminate gradient vanishing, alleviate internal covariate shift, regularization, network converge faster, can use larger learning rate</span>
+        <span class="s2">- </span><span class="s0">at test time, should use empirical parameters obtained at training stage</span>
+        <span class="s2">- </span><span class="s0">for fc layer, we do per-dimension batch norm; for conv, we do per-channel batch norm</span>
+    <span class="s2">- </span><span class="s0">optimization</span>
+        <span class="s2">- </span><span class="s0">problems with sgd</span><span class="s1">:</span>
+            <span class="s2">- </span><span class="s0">stuck in local minima</span>
+            <span class="s2">- </span><span class="s0">slow at saddle point</span>
+        <span class="s2">- </span><span class="s0">momentum</span><span class="s1">: </span><span class="s0">v</span><span class="s1">[</span><span class="s0">t</span><span class="s1">] </span><span class="s0">= alpha * v</span><span class="s1">[</span><span class="s0">t-1</span><span class="s1">] </span><span class="s0">+ G; w</span><span class="s1">[</span><span class="s0">t+1</span><span class="s1">] </span><span class="s0">= w</span><span class="s1">[</span><span class="s0">t</span><span class="s1">] </span><span class="s0">- lr * v</span><span class="s1">[</span><span class="s0">t</span><span class="s1">]</span>
+            <span class="s2">- </span><span class="s0">jump over local minima</span>
+            <span class="s2">- </span><span class="s0">speed up at saddle point</span>
+        <span class="s2">- </span><span class="s0">second-order optimization</span>
+            <span class="s2">- </span><span class="s0">learning rate determined by hessian matrix, point to minima so converge faster</span>
+            <span class="s2">- </span><span class="s0">computationally expensive</span>
+    <span class="s2">- </span><span class="s0">model ensembles</span>
+        <span class="s2">- </span><span class="s0">train multiple independent model</span>
+        <span class="s2">- </span><span class="s0">at test time, take the average of their results</span>
+        </pre>
+</body>
+</html>

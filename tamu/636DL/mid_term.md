@@ -32,19 +32,67 @@ Review
     is actually derived from MLE
     
 4. Softmax Regression(for multi-class classification)
+    - formula:
+    - relationship with logistic regression:
+        - equivalence between softmax and sigmoid
+        - equivalence between binary cross entropy and multi-class cross entropy:
+    - Cross entropy loss(for multi-class case)
 
 5. Gradient Descent
     - Batch-GD: update for the entire batch
     - SGD: update for each sample
     - Mini-Batch GD: update for each mini-batch (accumulate loss -> compute gradient -> update)
     
-6. CNN
+6. Neural Network
+    - Backpropagation Algorithm
+    ```
+    Compute_X(sample):
+        s, x = new_array(), new_array()
+        s[0] = sample
+        for l in (1, L):
+            x[l] = s[l-1] * W[l]
+            s[l] = actv(x[l])
+        return x
+    ```
+    ```
+   Compute_sensitivity(x):
+        E' = Loss'(S[L])
+        sen[L] = E' * actv'(s[L])
+        for l in (L-1, 1):
+            sen[l] = sen[l+1] * W[l+1]^T * actv'(x[l])
+        return sen
+    ```
+    ``` 
+    Backprop():
+        for s in all_samples:
+            x = Compute_X(s)             // compute output of each layer
+            sen = Compute_sensitivity(s) // compute sensitivity of each layer
+            E += Loss(s)
+            for l in L:                 // for each layer
+                G[l] = x[l-1] * sen[l-1]   // compute gradient for layer l
+                G[l] += G[l] + 1/N * G[l]  // accumulate gradient
+        for l in L:
+            W[l] -= lr * G[l]             // update weight
+    ```
+    - Generalization
+        - L1 regularization
+        - L2 regularization (weight decay)
+        - Early stopping
+        - Dropout
+        - Data augmentation
+    - Better GD
+        - variable learning rate
+        - Steepest Descent (Line Search): binary search to decide the lr that minimize E in one step
+        - ... and others
+    
+7. CNN
     - Domain knowledge
         - translation invariance
         - locality
     - Basics (hk is the size of the kernel) 
         - Conv
             - H(i+1) = H(i) + hk -1 
+            - Backprop(DeConv): 1. full-padding 2. conv with inverted filters
         - Padding 
             - "same" padding (or half-padding): Ph = (hk - 1)/2 on each side
             - "valid" padding: not use any padding...
@@ -59,8 +107,6 @@ Review
             - with stride of 1, H(i+1) = H(i) + hk -1 
             - provide nonlinearity and translation invariance
             - global average pooling before FC to reduce computation load
-        - FC
-            - 
         - Skip connection
             - provide unimpeded gradient flow
             - provide multiple level of abstractions and let the network itself to decide which level to use; the network
@@ -68,3 +114,33 @@ Review
             - the above point can be seen from an optimization perspective, in which says that deeper networks have more
             complicated loss surface and require much more time and more sophisticated optimization techniques to converge.
             The skip connections ease this difficulty by allowing the network to converge at "less-representative" minima
+
+7. CNN - training
+    - preprocessing
+        - zero-centered
+        - normalization
+    - weight initialization
+        - small random number (gaussian with zero mean and 1e-2 standard deviation)
+            - for deeper networks, activation outputs become zero
+            - weight updating becomes super slow, sometimes completely stop, G[l-1] = X^T * G[l-1]
+        - Xavier initialization
+            - small random / sqrt(fan_in)
+    - batch normalization
+        - covariate shift: the change of the distribution of input data
+        - almost eliminate gradient vanishing, alleviate internal covariate shift, regularization, network converge faster, can use larger learning rate
+        - at test time, should use empirical parameters obtained at training stage
+        - for fc layer, we do per-dimension batch norm; for conv, we do per-channel batch norm
+    - optimization
+        - problems with sgd:
+            - stuck in local minima
+            - slow at saddle point
+        - momentum: v[t] = alpha * v[t-1] + G; w[t+1] = w[t] - lr * v[t]
+            - jump over local minima
+            - speed up at saddle point
+        - second-order optimization
+            - learning rate determined by hessian matrix, point to minima so converge faster
+            - computationally expensive
+    - model ensembles
+        - train multiple independent model
+        - at test time, take the average of their results
+        

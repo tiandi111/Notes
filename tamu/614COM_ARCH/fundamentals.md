@@ -81,7 +81,7 @@ The implementation of a computer:
     - What is it?
         - it is the amount of heat a component can generate, and the cooler must remove
         - it is not the peak power
-        - it is noe the actual average power
+        - it is not the actual average power
     - it often determines the cooling requirement
 - Energy and energy efficiency
     - it is tied to a specific task

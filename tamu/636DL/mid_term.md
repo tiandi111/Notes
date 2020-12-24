@@ -93,6 +93,9 @@ Review
         - Conv
             - H(i+1) = H(i) + hk -1 
             - Backprop(DeConv): 1. full-padding 2. conv with inverted filters
+            - smaller kernel
+                - stack multiple layer to get the same receptive field
+                - but more non-linearity, less parameter
         - Padding 
             - "same" padding (or half-padding): Ph = (hk - 1)/2 on each side
             - "valid" padding: not use any padding...
@@ -114,7 +117,15 @@ Review
             - the above point can be seen from an optimization perspective, in which says that deeper networks have more
             complicated loss surface and require much more time and more sophisticated optimization techniques to converge.
             The skip connections ease this difficulty by allowing the network to converge at "less-representative" minima
-
+        - Inception module
+            - Apply parallel filter operations on the input from previous layer, then concatenate all filter outputs depth-wise
+                - parallel filters: different conv kernel size, pooling filter, etc
+            - very expensive computation, depth only increases
+            - use bottleneck to decrease depth
+             
+    - Resource distribution
+        - most memory is in early conv layer, because image size is large
+        - most params is in late fc layer, because connections are very dense
 7. CNN - training
     - preprocessing
         - zero-centered

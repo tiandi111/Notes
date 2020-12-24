@@ -31,30 +31,30 @@ Model Zoo 调研
     - 一般对训练的支持比较好
     - 也能比较方便的推理，因为主流训练框架的推理方案比较多
     - 例子
-        - 3. PaddlePaddle
-        - 5. PyTorchHub（Beta）
+        - 3 PaddlePaddle
+        - 5 PyTorchHub（Beta）
 - 推理框架的Model Zoo
     - 一般只提供本推理框架模型格式的模型
     - 一般对推理的支持比较好
     - 一般对训练的支持不太好
     - 例子
-        - 6. TorchServe Model Zoo（Beta）
-        - 7. OpenVino Model Zoo
+        - 6 TorchServe Model Zoo（Beta）
+        - 7 OpenVino Model Zoo
 - 深度学习平台的Model Zoo
     - 一般对本平台的支持好，如果决定要使用该平台的话，是个不错的选择
     - 似乎对继续训练的支持程度差一些
     - 例子
-        - 4. Ali PAI ModelHub公共模型仓库
-        - 3. PaddlePaddle
+        - 4 Ali PAI ModelHub公共模型仓库
+        - 3 PaddlePaddle
 - 深度学习工具包的Model Zoo
     - 一体化程度好，模型的下载，训练，推理基本都可以在工具包内完成
     - 通用性差一些
     - 例子
-        - 2. GluonCV
+        - 2 GluonCV
 - 开源的模型索引页
     - 就是简单的模型链接索引
     - 例子
-        - 8. Model Zoo
+        - 8 Model Zoo
 
 实例
 ---

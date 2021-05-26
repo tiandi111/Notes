@@ -1,0 +1,25 @@
+Paper Note 《The Deep Learning Compiler: A Comprehensive Survey》
+---
+4. Key Components of DL Compilers
+- 4.1 High-level IR
+    - Representation of Graph IR
+        - DAG-based IR
+            - node: operators
+            - edge: tensors
+        - Let-binding-based IR
+        - Representing Tensor Computation
+            - Function-based
+                - Glow, nGraph, XLA
+            - Lambda expression
+                - TVM
+            - Einstein notation
+                - TC
+    - Implementation of Graph IR
+        - Data representation
+            - Placeholder
+                - separate the computation definition from the exact execution
+            - Unknown(Dynamic) shape representation
+                - necessary to support the dynamic model
+            - Data layout
+            - Bound inference
+        - Operators supported
